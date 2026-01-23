@@ -1,0 +1,13 @@
+#width 1280
+#height 720
+
+include "tex"
+
+$FONT img "minesweeper/assets/code8x8-mod.png"
+
+
+fn tick() {
+    let text = "mines weeper"
+    color(255, 255, 255)
+    draw_text(text, FONT, 50, 50, 3, TEXT_ALIGN_LEFT)
+}
