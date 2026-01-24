@@ -1,0 +1,38 @@
+include "color"
+
+fn outline_rect(x, y, w, h) {
+    let right = x + w
+    let bottom = y + h
+    line(x, y, right, y)
+    line(x, y, x, bottom)
+    line(x, bottom, right, bottom)
+    line(right, y, right, bottom)
+}
+
+
+fn draw_shadow_text(text, x, y, scale, alignment, shadow_distance, pcolor) {
+    color(32, 32, 32)
+    draw_text(text, FONT, x+shadow_distance, y+shadow_distance, scale, alignment)
+    unpack_color(pcolor)
+    draw_text(text, FONT, x, y, scale, alignment)
+}
+
+
+fn draw_checkerboard_background(square_size, pcolor1, pcolor2) {
+    let squares_width = WIDTH / square_size + 1
+    let squares_height = HEIGHT / square_size + 1
+    let area = squares_width * squares_height
+
+    for (let i = 0; i < area; i=i+1) {
+        let x = i % squares_width * square_size
+        let y = i / squares_width * square_size
+        
+        if i % 2 {
+            unpack_color(pcolor1)
+        }
+        else {
+            unpack_color(pcolor2)
+        }
+        rect(x, y, square_size, square_size)
+    }
+}

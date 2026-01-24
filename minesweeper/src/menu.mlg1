@@ -1,0 +1,196 @@
+include "string"
+include "math"
+include "minesweeper/src/util"
+
+
+define MENU_OPTION_COUNT 4
+
+define OPTION_PRESET 0
+
+define MENU_X_OFFSET 50
+define MENU_Y_OFFSET 100
+define MENU_OPTION_SPACING 45
+define MENU_OPTION_SCALE 3
+define MENU_SELECTION_PADDING 5
+
+define MENU_CHANGE_VALUE_DELAY 8
+
+
+global PRESET_PATTERN = "Preset: %s"
+global BOARD_WIDTH_PATTERN = "Board width: %s tiles"
+global BOARD_HEIGHT_PATTERN = "Board height: %s tiles"
+global MINE_DENSITY_PATTERN = "Mine density: %s%"
+
+global MENU_PATTERNS[] = [
+    PRESET_PATTERN,
+    BOARD_WIDTH_PATTERN,
+    BOARD_HEIGHT_PATTERN,
+    MINE_DENSITY_PATTERN
+]
+
+global PRESET_0_STRING = "Beginner"
+global PRESET_1_STRING = "Intermediate"
+global PRESET_2_STRING = "Expert"
+
+global PRESET_STRINGS[] = [
+    PRESET_0_STRING,
+    PRESET_1_STRING,
+    PRESET_2_STRING
+]
+
+global MENU_DATA_POINTERS[] = [
+    &current_preset,
+    &board_width,
+    &board_height,
+    &mine_density
+]
+
+global MENU_DATA_BOUNDS[] = [
+    MIN_PRESET, MAX_PRESET,
+    MIN_BOARD_SIZE, MAX_BOARD_SIZE,
+    MIN_BOARD_SIZE, MAX_BOARD_SIZE,
+    5, 100
+]
+
+global MENU_DATA_INCREMENT[] = [
+    1, 1, 1, 5
+]
+
+global menu_option_index = 0
+global menu_change_value_timer = 0
+global current_option_min = MIN_PRESET
+global current_option_max = MAX_PRESET
+global current_option_increment = 1
+
+
+fn display_menu() {
+    draw_checkerboard_background(80, PCOLOR_BG1, PCOLOR_BG2)
+
+    let string_buffer[32]
+    let data_string_buffer[32]
+
+    let input_pattern = "< %s >"
+    let title_text = "Board Setup"
+    let prompt_text = "Press ENTER to begin"
+    let mine_count_pattern = "(%i mines)"
+    draw_shadow_text(title_text, MENU_X_OFFSET-15, 30, 4, TEXT_ALIGN_LEFT, 4, PCOLOR_WHITE)
+    draw_shadow_text(prompt_text, MENU_X_OFFSET, 300, 3, TEXT_ALIGN_LEFT, 3, PCOLOR_YELLOW)
+    
+    let mine_count = board_width * board_height * mine_density / 100
+    formatn(string_buffer, 31, mine_count_pattern, mine_count)
+    draw_shadow_text(string_buffer, 650, 245, 2, TEXT_ALIGN_LEFT, 2, PCOLOR_GRAY)
+
+    // Draw menu options
+    for (let i = 0; i < MENU_OPTION_COUNT; i=i+1) {
+        let current_pattern = get(MENU_PATTERNS+i)
+        let p_current_data = get(MENU_DATA_POINTERS+i)
+        let current_data = get(p_current_data)
+        let text_y = i * MENU_OPTION_SPACING + MENU_Y_OFFSET
+
+        // Convert current_data into a string
+        let current_data_str
+        if i == OPTION_PRESET {
+            // Grab preset string
+            current_data_str = get(PRESET_STRINGS+current_data)
+        }
+        else {
+            // Convert the value to a string
+            let int_buffer[12]
+            int_to_str(int_buffer, current_data)
+            current_data_str = int_buffer
+        }
+
+        if i == menu_option_index {
+            // This option is selected, put brackets around it
+            formatn(data_string_buffer, 31, input_pattern, current_data_str)
+        }
+        else {
+            // This option is not selected
+            strncpy(data_string_buffer, current_data_str, 31)
+        }
+
+        formatn(string_buffer, 31, current_pattern, data_string_buffer)
+        
+        if i == menu_option_index {
+            let string_length = get(string_buffer)
+            let text_width = 9 * string_length * MENU_OPTION_SCALE
+            color(100, 100, 200)
+            rect(
+                MENU_X_OFFSET-MENU_SELECTION_PADDING, text_y-MENU_SELECTION_PADDING,
+                text_width+MENU_SELECTION_PADDING*2, 9 * MENU_OPTION_SCALE+MENU_SELECTION_PADDING*2
+            )
+        }
+        
+        color(255, 255, 255)
+        draw_shadow_text(
+            string_buffer,
+            MENU_X_OFFSET, text_y,
+            MENU_OPTION_SCALE, TEXT_ALIGN_LEFT, 3,
+            PCOLOR_WHITE
+        )
+    }
+}
+
+
+fn update_preset_values() {
+    if menu_option_index == OPTION_PRESET {
+        let p_presets = PRESETS + current_preset*3
+        board_width = get(p_presets)
+        board_height = get(p_presets+1)
+        mine_density = get(p_presets+2)
+    }
+}
+
+
+fn menu_tick() {
+    // Select option
+    let prev_option_index = menu_option_index
+    if UP * !prev_UP {
+        menu_option_index = (menu_option_index-1) % MENU_OPTION_COUNT
+        play_tone(0, SQUARE_WAVE, 1046, 3000, 2)
+    }
+    if DOWN * !prev_DOWN {
+        menu_option_index = (menu_option_index+1) % MENU_OPTION_COUNT
+        play_tone(0, SQUARE_WAVE, 523, 3000, 2)
+    }
+
+    // Update menu on option change
+    if prev_option_index != menu_option_index {
+        current_option_min = get(MENU_DATA_BOUNDS + menu_option_index*2)
+        current_option_max = get(MENU_DATA_BOUNDS + menu_option_index*2 + 1)
+        current_option_increment = get(MENU_DATA_INCREMENT+menu_option_index)
+        display_menu()
+    }
+
+    // Change menu values
+    if !LEFT * !RIGHT {
+        // Reset timer to zero when both are released
+        menu_change_value_timer = 0
+    }
+    
+    if LEFT + RIGHT {
+        if !menu_change_value_timer {
+            let p_current_data = get(MENU_DATA_POINTERS+menu_option_index)
+            let current_data = get(p_current_data)
+            if LEFT {
+                current_data = clamp(current_data-current_option_increment, current_option_min, current_option_max)
+                set(p_current_data, current_data)
+                update_preset_values()
+                display_menu()
+                play_tone(1, TRIANGLE_WAVE, 932, 3000, 2)
+            }
+            else if RIGHT {
+                current_data = clamp(current_data+current_option_increment, current_option_min, current_option_max)
+                set(p_current_data, current_data)
+                update_preset_values()
+                display_menu()
+                play_tone(1, TRIANGLE_WAVE, 1864, 3000, 2)
+            }
+        }
+
+        menu_change_value_timer = (menu_change_value_timer+1) % MENU_CHANGE_VALUE_DELAY
+    }
+
+    let prev_UP = UP
+    let prev_DOWN = DOWN
+}

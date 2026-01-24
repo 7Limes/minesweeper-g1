@@ -1,0 +1,32 @@
+define CHANNEL_COUNT 8
+
+define SQUARE_WAVE 0
+define TRIANGLE_WAVE 1
+define SAWTOOTH_WAVE 2
+define NOISE_WAVE 3
+
+global __tone_timers[CHANNEL_COUNT]
+
+
+fn play_tone(channel, waveform, frequency, volume, duration) {
+    setchannel(channel, waveform, frequency, volume)
+    set(__tone_timers+channel, duration)
+}
+
+
+fn sound_tick() {
+    let timers_end = __tone_timers + CHANNEL_COUNT
+    for (let i = 0; i < CHANNEL_COUNT; i=i+1) {
+        let p = __tone_timers+i
+        let timer_value = get(p)
+        if timer_value {
+            timer_value = timer_value-1
+            set(p, timer_value)
+
+            if !timer_value {
+                // Disable tone
+                setchannel(i, 0, 0, 0)
+            }
+        }
+    }
+}

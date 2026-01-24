@@ -1,0 +1,36 @@
+// Constants
+define MIN_BOARD_SIZE 5
+define MAX_BOARD_SIZE 30
+
+define MIN_PRESET 0
+define MAX_PRESET 2
+
+define E_GAMESTATE_MENU 1
+define E_GAMESTATE_BOARD 2
+
+// Packed colors
+define PCOLOR_WHITE 255 + 255*256 + 255*65536
+define PCOLOR_GRAY 160 + 160*256 + 160*65536
+define PCOLOR_YELLOW 250 + 210*256 + 70*65536
+
+define PCOLOR_BG1 50 + 50*256 + 90*65536
+define PCOLOR_BG2 40 + 40*256 + 70*65536
+
+
+// File loading
+$FONT img "minesweeper/assets/code8x8-mod.png"
+
+
+// Globals
+global game_state = E_GAMESTATE_MENU
+
+global current_preset = 0  // 0 = Beginner, 1 = Intermediate, 2 = Expert
+global board_width = 12
+global board_height = 7
+global mine_density = 20
+
+global PRESETS[] = [
+    9, 9, 10,
+    16, 16, 15,
+    30, 16, 20
+]
