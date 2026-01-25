@@ -4,7 +4,8 @@
 include "tex"
 include "minesweeper/src/globals"
 include "minesweeper/src/menu"
-include "minesweeper/src/sound"
+include "minesweeper/src/game"
+include "minesweeper/src/endgame"
 
 
 fn start() {
@@ -18,7 +19,10 @@ fn tick() {
     if game_state == E_GAMESTATE_MENU {
         menu_tick()
     }
-    else {
+    else if game_state == E_GAMESTATE_BOARD {
         game_tick()
+    }
+    else {
+        endgame_tick()
     }
 }

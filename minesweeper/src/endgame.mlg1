@@ -1,0 +1,97 @@
+include "color"
+
+
+define ENDGAME_MENU_WIDTH 700
+define ENDGAME_MENU_HEIGHT 300
+
+define WINLOSE_TEXT_Y_OFFSET -100
+define RETURN_TEXT_Y_OFFSET 100
+
+define TIME_SCALE 100
+define ZERO_CHAR 48  // '0'
+
+
+fn endgame_tick() {
+    if CONTROL1 {
+        game_state = E_GAMESTATE_MENU
+        display_menu()
+    }
+}
+
+
+fn draw_timer_text() {
+    let time_string = "Time: %i:%s.%s"
+    let time_string_formatted[32]
+    let zero_pad_buffer[6]
+
+    let time_us = game_timer * 1667
+    let minutes = time_us / (60000 * TIME_SCALE)
+    time_us = time_us % (60000 * TIME_SCALE)
+    let seconds = time_us / (1000 * TIME_SCALE)
+    let ms = time_us % (1000 * TIME_SCALE) / TIME_SCALE
+    formatn(time_string_formatted, 31, time_string, minutes)
+
+    // Add padding zeros to seconds and milliseconds
+    let seconds_buffer = zero_pad_buffer+1
+    int_to_str(seconds_buffer, seconds)
+    if seconds < 10 {
+        seconds_buffer = seconds_buffer-1
+        set(seconds_buffer, 2)
+        set(seconds_buffer+1, ZERO_CHAR)
+    }
+    formatn(time_string_formatted, 31, time_string_formatted, seconds_buffer)
+
+    let ms_buffer = zero_pad_buffer+2
+    int_to_str(ms_buffer, ms)
+    if ms < 10 {
+        ms_buffer = ms_buffer-2
+        set(ms_buffer, 3)
+        set(ms_buffer+1, ZERO_CHAR)
+        set(ms_buffer+2, ZERO_CHAR)
+    }
+    else if ms < 100 {
+        ms_buffer = ms_buffer-1
+        set(ms_buffer, 3)
+        set(ms_buffer+1, ZERO_CHAR)
+    }
+    formatn(time_string_formatted, 31, time_string_formatted, ms_buffer)
+
+    draw_shadow_text(
+        time_string_formatted,
+        WIDTH/2, HEIGHT/2,
+        3, TEXT_ALIGN_CENTER, 3, PCOLOR_WHITE
+    )
+}
+
+
+fn show_endgame_menu(win) {
+    let win_text = "You Win!"
+    let lose_text = "You Lose..."
+    let winlose_text = win_text
+    if !win {
+        winlose_text = lose_text
+    }
+
+    // Draw background
+    unpack_color(PCOLOR_BG1)
+    rect(
+        WIDTH/2-ENDGAME_MENU_WIDTH/2, HEIGHT/2-ENDGAME_MENU_HEIGHT/2,
+        ENDGAME_MENU_WIDTH, ENDGAME_MENU_HEIGHT
+    )
+    // Draw win/lose text
+    draw_shadow_text(
+        winlose_text,
+        WIDTH/2, HEIGHT/2 + WINLOSE_TEXT_Y_OFFSET,
+        5, TEXT_ALIGN_CENTER, 5, PCOLOR_YELLOW
+    )
+
+    draw_timer_text()
+
+    // Draw return prompt text
+    let return_text = "Press ENTER to return to the menu."
+    draw_shadow_text(
+        return_text,
+        WIDTH/2, HEIGHT/2 + RETURN_TEXT_Y_OFFSET,
+        2, TEXT_ALIGN_CENTER, 2, PCOLOR_WHITE
+    )
+}

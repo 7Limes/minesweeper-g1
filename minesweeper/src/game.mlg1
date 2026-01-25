@@ -17,6 +17,7 @@ global cursor_repeat_timer = 0
 
 fn start_game() {
     game_state = E_GAMESTATE_BOARD
+    game_timer = 0
 
     cursor_x = board_width / 2
     cursor_y = board_height / 2
@@ -36,6 +37,8 @@ fn game_tick() {
     if B * !prev_B {
         flag_cell(cursor_x, cursor_y)
     }
+
+    game_timer = game_timer+1
 
     let prev_A = A
     let prev_B = B
@@ -88,10 +91,17 @@ fn clear_cell(x, y) {
     if cell_state == E_CELL_UNCLEAR_EMPTY {
         floodfill_clear(x, y)
         draw_board()
+        if check_win() {
+            game_state = E_GAMESTATE_ENDGAME
+            show_endgame_menu(true)
+        }
     }
     else if cell_state == E_CELL_UNCLEAR_MINE {
+        // Hit mine
         set_cell_state(x, y, E_CELL_CLEAR_MINE)
+        game_state = E_GAMESTATE_ENDGAME
         draw_board()
+        show_endgame_menu(false)
     }
 }
 

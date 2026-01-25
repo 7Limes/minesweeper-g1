@@ -1,6 +1,7 @@
 include "string"
 include "math"
 include "minesweeper/src/util"
+include "minesweeper/src/sound"
 include "minesweeper/src/game"
 
 
@@ -151,7 +152,7 @@ fn update_preset_values() {
 fn menu_tick() {
     next_rand()  // Seed RNG
 
-    if CONTROL1 {
+    if CONTROL1 * !prev_CONTROL1 {
         start_game()
     }
 
@@ -204,6 +205,7 @@ fn menu_tick() {
         menu_change_value_timer = (menu_change_value_timer+1) % MENU_CHANGE_VALUE_DELAY
     }
 
+    let prev_CONTROL1 = CONTROL1
     let prev_UP = UP
     let prev_DOWN = DOWN
 }
