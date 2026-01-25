@@ -5,7 +5,7 @@ include "minesweeper/src/sound"
 include "minesweeper/src/game"
 
 
-define MENU_OPTION_COUNT 4
+define MENU_OPTION_COUNT 5
 define OPTION_PRESET 0
 
 define MENU_X_OFFSET 50
@@ -27,12 +27,14 @@ global PRESET_PATTERN = "Preset: %s"
 global BOARD_WIDTH_PATTERN = "Board width: %s tiles"
 global BOARD_HEIGHT_PATTERN = "Board height: %s tiles"
 global MINE_DENSITY_PATTERN = "Mine density: %s%"
+global MUTE_PATTERN = "Mute audio: %s"
 
 global MENU_PATTERNS[] = [
     PRESET_PATTERN,
     BOARD_WIDTH_PATTERN,
     BOARD_HEIGHT_PATTERN,
-    MINE_DENSITY_PATTERN
+    MINE_DENSITY_PATTERN,
+    MUTE_PATTERN
 ]
 
 global PRESET_0_STRING = "Beginner"
@@ -49,18 +51,20 @@ global MENU_DATA_POINTERS[] = [
     &current_preset,
     &board_width,
     &board_height,
-    &mine_density
+    &mine_density,
+    &mute_audio
 ]
 
 global MENU_DATA_BOUNDS[] = [
     MIN_PRESET, MAX_PRESET,
     MIN_BOARD_SIZE, MAX_BOARD_SIZE,
     MIN_BOARD_SIZE, MAX_BOARD_SIZE,
-    MIN_DENSITY, MAX_DENSITY
+    MIN_DENSITY, MAX_DENSITY,
+    0, 1
 ]
 
 global MENU_DATA_INCREMENT[] = [
-    1, 1, 1, 5
+    1, 1, 1, 5, 1
 ]
 
 global menu_option_index = 0
@@ -81,7 +85,7 @@ fn display_menu() {
     let prompt_text = "Press ENTER to begin"
     let mine_count_pattern = "(%i mines)"
     draw_shadow_text(title_text, MENU_X_OFFSET-15, 30, 4, TEXT_ALIGN_LEFT, 4, PCOLOR_WHITE)
-    draw_shadow_text(prompt_text, MENU_X_OFFSET, 300, 3, TEXT_ALIGN_LEFT, 3, PCOLOR_YELLOW)
+    draw_shadow_text(prompt_text, MENU_X_OFFSET, 350, 3, TEXT_ALIGN_LEFT, 3, PCOLOR_YELLOW)
     
     let mine_count = board_width * board_height * mine_density / 100
     formatn(string_buffer, 31, mine_count_pattern, mine_count)

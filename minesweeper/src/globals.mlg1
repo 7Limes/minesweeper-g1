@@ -25,10 +25,12 @@ $FONT img "minesweeper/assets/code8x8-mod.png"
 // Globals
 global game_state = E_GAMESTATE_MENU
 
+// Menu options
 global current_preset = 0  // 0 = Beginner, 1 = Intermediate, 2 = Expert
 global board_width = 9
 global board_height = 9
 global mine_density = 10
+global mute_audio = false
 
 global PRESETS[] = [
     9, 9, 10,

@@ -9,8 +9,10 @@ global __tone_timers[CHANNEL_COUNT]
 
 
 fn play_tone(channel, waveform, frequency, volume, duration) {
-    setchannel(channel, waveform, frequency, volume)
-    set(__tone_timers+channel, duration)
+    if !mute_audio {
+        setchannel(channel, waveform, frequency, volume)
+        set(__tone_timers+channel, duration)
+    }
 }
 
 
