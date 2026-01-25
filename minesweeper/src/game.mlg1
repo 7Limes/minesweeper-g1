@@ -5,10 +5,17 @@ include "string"
 include "minesweeper/src/gamelogic"
 include "minesweeper/src/graphics"
 
+
+// Win state enum
+define E_WINSTATE_NONE 0
+define E_WINSTATE_WIN 1
+define E_WINSTATE_LOSE -1
+
 // Cursor controls
 define CURSOR_REPEAT_DELAY 10
 define CURSOR_REPEAT_INTERVAL 4
 
+// First turn configuration
 define MINIMUM_STARTING_TILES 10
 define FIRST_TURN_MAX_ITERATIONS 10
 
@@ -19,36 +26,8 @@ global cursor_repeat_timer = 0
 
 global first_turn
 
-
-fn start_game() {
-    game_state = E_GAMESTATE_BOARD
-    game_timer = 0
-    first_turn = true
-
-    cursor_x = board_width / 2
-    cursor_y = board_height / 2
-
-    calculate_board_data()
-    populate_board()
-    draw_board()
-}
-
-
-fn game_tick() {
-    move_cursor_tick()
-
-    if A * !prev_A {
-        clear_cell(cursor_x, cursor_y)
-    }
-    if B * !prev_B {
-        flag_cell(cursor_x, cursor_y)
-    }
-
-    game_timer = game_timer+1
-
-    let prev_A = A
-    let prev_B = B
-}
+global quick_clear_queue[8]
+global quick_clear_queue_size = 0
 
 
 fn move_cursor_tick() {
@@ -110,31 +89,101 @@ fn do_first_turn(x, y) {
 }
 
 
+fn count_neighboring_flags(x, y) {
+    let x_end = x+2
+    let y_end = y+2
+    let sum = 0
+
+    for (let i = y-1; i < y_end; i=i+1) {
+        for (let j = x-1; j < x_end; j=j+1) {
+            if is_cell_out_of_bounds(j, i) {
+                continue
+            }
+            if (i == y) * (j == x) {
+                continue
+            }
+            let cell_state = get_cell_state(j, i)
+            let is_flag = (cell_state == E_CELL_FLAG_EMPTY) + (cell_state == E_CELL_FLAG_MINE)
+            sum = sum + is_flag
+        }
+    }
+
+    return sum
+}
+
+
+fn queue_quick_clear_cells(x, y) {
+    let x_end = x+2
+    let y_end = y+2
+
+    for (let i = y-1; i < y_end; i=i+1) {
+        for (let j = x-1; j < x_end; j=j+1) {
+            if is_cell_out_of_bounds(j, i) {
+                continue
+            }
+            if (i == y) * (j == x) {
+                continue
+            }
+            let cell_state = get_cell_state(j, i)
+            if cell_state <= E_CELL_UNCLEAR_MINE {
+                let cell_index = j + i*board_width
+                set(quick_clear_queue+quick_clear_queue_size, cell_index)
+                quick_clear_queue_size = quick_clear_queue_size+1
+            }
+        }
+    }
+}
+
+
 fn clear_cell(x, y) {
     do_first_turn(x, y)
 
     let cell_state = get_cell_state(x, y)
-    if (cell_state >= E_CELL_FLAG_EMPTY) * (cell_state <= E_CELL_CLEAR_EMPTY)  {
-        // Skip if this cell is flagged or already cleared
-        return 0
+    if (cell_state == E_CELL_FLAG_EMPTY) + (cell_state == E_CELL_FLAG_MINE)  {
+        // Skip if this cell is flagged
+        return E_WINSTATE_NONE
     }
 
-
-    if cell_state == E_CELL_UNCLEAR_EMPTY {
-        let cleared_cells = floodfill_clear(x, y)
-        draw_board()
+    if cell_state == E_CELL_CLEAR_EMPTY {
+        // Try to do quick clear
+        let neighboring_mines = count_neighboring_mines(x, y)
+        if neighboring_mines {
+            let neighboring_flags = count_neighboring_flags(x, y)
+            if neighboring_mines == neighboring_flags {
+                queue_quick_clear_cells(x, y)
+            }
+        }
+    }
+    else if cell_state == E_CELL_UNCLEAR_EMPTY {
+        floodfill_clear(x, y)
         if check_win() {
-            game_state = E_GAMESTATE_ENDGAME
-            show_endgame_menu(true)
+            return E_WINSTATE_WIN
         }
     }
     else if cell_state == E_CELL_UNCLEAR_MINE {
         // Hit mine
         set_cell_state(x, y, E_CELL_CLEAR_MINE)
-        game_state = E_GAMESTATE_ENDGAME
-        draw_board()
-        show_endgame_menu(false)
+        return E_WINSTATE_LOSE
     }
+
+    return E_WINSTATE_NONE
+}
+
+
+fn do_quick_clear() {
+    for (let i = 0; i < quick_clear_queue_size; i=i+1) {
+        let cell_index = get(quick_clear_queue+i)
+        let x = cell_index % board_width
+        let y = cell_index / board_width
+        let win_state = clear_cell(x, y)
+        if win_state {
+            // If there was a win or lose, return immediately
+            return win_state
+        }
+    }
+    
+    quick_clear_queue_size = 0
+    return E_WINSTATE_NONE
 }
 
 
@@ -155,5 +204,47 @@ fn flag_cell(x, y) {
     }
 
     set_cell_state(x, y, cell_state)
+}
+
+
+fn start_game() {
+    game_state = E_GAMESTATE_BOARD
+    game_timer = 0
+    first_turn = true
+
+    cursor_x = board_width / 2
+    cursor_y = board_height / 2
+
+    calculate_board_data()
+    populate_board()
     draw_board()
+}
+
+
+fn game_tick() {
+    move_cursor_tick()
+
+    if A * !prev_A {
+        let win_state = clear_cell(cursor_x, cursor_y)
+        win_state = win_state + do_quick_clear()
+        draw_board()
+
+        if win_state == E_WINSTATE_WIN {
+            game_state = E_GAMESTATE_ENDGAME
+            show_endgame_menu(true)
+        }
+        else if win_state == E_WINSTATE_LOSE {
+            game_state = E_GAMESTATE_ENDGAME
+            show_endgame_menu(false)
+        }
+    }
+    if B * !prev_B {
+        flag_cell(cursor_x, cursor_y)
+        draw_board()
+    }
+
+    game_timer = game_timer+1
+
+    let prev_A = A
+    let prev_B = B
 }
