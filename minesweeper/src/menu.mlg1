@@ -1,10 +1,10 @@
 include "string"
 include "math"
 include "minesweeper/src/util"
+include "minesweeper/src/game"
 
 
 define MENU_OPTION_COUNT 4
-
 define OPTION_PRESET 0
 
 define MENU_X_OFFSET 50
@@ -15,6 +15,12 @@ define MENU_SELECTION_PADDING 5
 
 define MENU_CHANGE_VALUE_DELAY 8
 
+define MIN_BOARD_SIZE 5
+define MAX_BOARD_SIZE 30
+define MIN_PRESET 0
+define MAX_PRESET 2
+define MIN_DENSITY 5
+define MAX_DENSITY 50
 
 global PRESET_PATTERN = "Preset: %s"
 global BOARD_WIDTH_PATTERN = "Board width: %s tiles"
@@ -49,7 +55,7 @@ global MENU_DATA_BOUNDS[] = [
     MIN_PRESET, MAX_PRESET,
     MIN_BOARD_SIZE, MAX_BOARD_SIZE,
     MIN_BOARD_SIZE, MAX_BOARD_SIZE,
-    5, 100
+    MIN_DENSITY, MAX_DENSITY
 ]
 
 global MENU_DATA_INCREMENT[] = [
@@ -143,6 +149,10 @@ fn update_preset_values() {
 
 
 fn menu_tick() {
+    if CONTROL1 {
+        start_game()
+    }
+
     // Select option
     let prev_option_index = menu_option_index
     if UP * !prev_UP {

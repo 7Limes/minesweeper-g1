@@ -19,6 +19,6 @@ fn tick() {
         menu_tick()
     }
     else {
-
+        game_tick()
     }
 }
