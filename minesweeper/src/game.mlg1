@@ -4,6 +4,7 @@ include "raster"
 include "string"
 include "minesweeper/src/gamelogic"
 include "minesweeper/src/graphics"
+include "minesweeper/src/sound"
 
 
 // Win state enum
@@ -85,7 +86,6 @@ fn do_first_turn(x, y) {
             first_turn = false
         }
     }
-    draw_board()
 }
 
 
@@ -136,7 +136,11 @@ fn queue_quick_clear_cells(x, y) {
 
 
 fn clear_cell(x, y) {
-    do_first_turn(x, y)
+    if first_turn {
+        do_first_turn(x, y)
+        play_tone(0, TRIANGLE_WAVE, 200, 5000, 5)
+        return E_WINSTATE_NONE
+    }
 
     let cell_state = get_cell_state(x, y)
     if (cell_state == E_CELL_FLAG_EMPTY) + (cell_state == E_CELL_FLAG_MINE)  {
@@ -155,7 +159,14 @@ fn clear_cell(x, y) {
         }
     }
     else if cell_state == E_CELL_UNCLEAR_EMPTY {
-        floodfill_clear(x, y)
+        let cleared_cells = floodfill_clear(x, y)
+        if cleared_cells > 5 {
+            play_tone(0, TRIANGLE_WAVE, 400, 5000, 7)
+        }
+        else {
+            play_tone(0, TRIANGLE_WAVE, 200, 5000, 5)
+        }
+
         if check_win() {
             return E_WINSTATE_WIN
         }
@@ -163,6 +174,7 @@ fn clear_cell(x, y) {
     else if cell_state == E_CELL_UNCLEAR_MINE {
         // Hit mine
         set_cell_state(x, y, E_CELL_CLEAR_MINE)
+        play_tone(2, NOISE_WAVE, 500, 5000, 60)
         return E_WINSTATE_LOSE
     }
 
@@ -202,6 +214,7 @@ fn flag_cell(x, y) {
         // Cell is not flagged, set a flag
         cell_state = cell_state+2
     }
+    play_tone(1, SQUARE_WAVE, 250, 2000, 5)
 
     set_cell_state(x, y, cell_state)
 }
