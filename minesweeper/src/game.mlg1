@@ -86,7 +86,7 @@ fn clear_cell(x, y) {
     }
 
     if cell_state == E_CELL_UNCLEAR_EMPTY {
-        set_cell_state(x, y, E_CELL_CLEAR_EMPTY)
+        floodfill_clear(x, y)
         draw_board()
     }
     else if cell_state == E_CELL_UNCLEAR_MINE {

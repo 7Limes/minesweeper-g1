@@ -71,6 +71,18 @@ fn populate_board() {
     }
 }
 
+
+fn is_cell_out_of_bounds(x, y) {
+    if (y < 0) + (y >= board_height) {
+        return 1
+    }
+    if (x < 0) + (x >= board_width) {
+        return 1
+    }
+    return 0
+}
+
+
 fn count_neighboring_mines(x, y) {
     let x_end = x+2
     let y_end = y+2
@@ -78,8 +90,10 @@ fn count_neighboring_mines(x, y) {
 
     for (let i = y-1; i < y_end; i=i+1) {
         for (let j = x-1; j < x_end; j=j+1) {
-            if (i < 0) + (i >= board_height) + (j < 0) + (j >= board_width) +
-               ((i == 1) * (j == 1)) {
+            if is_cell_out_of_bounds(j, i) {
+                continue
+            }
+            if (i == y) * (j == x) {
                 continue
             }
             let cell_state = get_cell_state(j, i)
@@ -88,4 +102,66 @@ fn count_neighboring_mines(x, y) {
     }
 
     return sum
+}
+
+
+fn queue_neighbors(next_buffer_end, x, y) {
+    let x_end = x+2
+    let y_end = y+2
+
+    for (let i = y-1; i < y_end; i=i+1) {
+        for (let j = x-1; j < x_end; j=j+1) {
+            if is_cell_out_of_bounds(j, i) {
+                continue
+            }
+            if (i == y) * (j == x) {
+                continue
+            }
+            let neighbor_state = get_cell_state(j, i)
+            if neighbor_state == E_CELL_UNCLEAR_EMPTY {
+                set_cell_state(j, i, E_CELL_CLEAR_EMPTY)
+                set(next_buffer_end, j + i*board_width)
+                next_buffer_end = next_buffer_end+1
+            }
+        }
+    }
+
+    return next_buffer_end
+}
+
+
+fn floodfill_clear(seed_x, seed_y) {
+    let current_buffer = floodfill_buffer1
+    let next_buffer = floodfill_buffer2
+    let current_buffer_end = current_buffer+1
+    let next_buffer_end = next_buffer
+
+    set_cell_state(seed_x, seed_y, E_CELL_CLEAR_EMPTY)
+    set(current_buffer, seed_x + seed_y*board_width)
+
+    let current_buffer_ptr = current_buffer
+    while (current_buffer_ptr < current_buffer_end) {
+        let current_cell = get(current_buffer_ptr)
+        let x = current_cell % board_width
+        let y = current_cell / board_width
+
+        let neighbors = count_neighboring_mines(x, y)
+        if !neighbors {
+            next_buffer_end = queue_neighbors(next_buffer_end, x, y)
+        }
+        
+        current_buffer_ptr = current_buffer_ptr+1
+        
+        if current_buffer_ptr >= current_buffer_end {
+            // Swap current buffer and next buffer
+            let temp = current_buffer
+            current_buffer = next_buffer
+            next_buffer = temp
+
+            current_buffer_ptr = current_buffer
+            current_buffer_end = next_buffer_end
+            next_buffer_end = next_buffer
+        }
+    }
+
 }
