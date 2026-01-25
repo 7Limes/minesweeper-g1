@@ -1,7 +1,6 @@
 #width 1280
 #height 720
 
-include "tex"
 include "minesweeper/src/globals"
 include "minesweeper/src/menu"
 include "minesweeper/src/game"
