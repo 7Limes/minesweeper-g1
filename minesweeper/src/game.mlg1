@@ -20,6 +20,8 @@ define CURSOR_REPEAT_INTERVAL 4
 define MINIMUM_STARTING_TILES 10
 define FIRST_TURN_MAX_ITERATIONS 10
 
+define GOOD_CLEAR_THRESHOLD 5
+
 
 // Cursor data
 global cursor_x, cursor_y
@@ -160,7 +162,7 @@ fn clear_cell(x, y) {
     }
     else if cell_state == E_CELL_UNCLEAR_EMPTY {
         let cleared_cells = floodfill_clear(x, y)
-        if cleared_cells > 5 {
+        if cleared_cells > GOOD_CLEAR_THRESHOLD {
             play_tone(0, TRIANGLE_WAVE, 400, 5000, 7)
         }
         else {
@@ -251,7 +253,7 @@ fn game_tick() {
             show_endgame_menu(false)
         }
     }
-    if B * !prev_B {
+    if B * !prev_B * !first_turn {
         flag_cell(cursor_x, cursor_y)
         draw_board()
     }

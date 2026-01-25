@@ -1,3 +1,4 @@
+include "math"
 include "minesweeper/src/gamelogic"
 
 
@@ -7,6 +8,9 @@ define PCOLOR_TILE_DARK 120 + 120*256 + 120*65536
 define PCOLOR_CURSOR 180 + 210*256 + 250*65536
 
 define TILE_BEVEL_SIZE 3
+
+define MIN_TILE_TEXT_SIZE 1
+define MAX_TILE_TEXT_SIZE 8
 
 
 global NUMBER_COLORS[] = [
@@ -58,9 +62,10 @@ fn draw_cursor(x, y) {
 
 
 fn draw_tile_text(text, x, y) {
+    let text_size = clamp(tile_size / 8 - 1, MIN_TILE_TEXT_SIZE, MAX_TILE_TEXT_SIZE)
     x = x * tile_size + board_x_offset + tile_size / 2
-    y = y * tile_size + board_y_offset
-    draw_text(text, FONT, x, y, tile_size / 8 - 2, TEXT_ALIGN_CENTER)
+    y = y * tile_size + board_y_offset + tile_size / 2 - text_size * 4
+    draw_text(text, FONT, x, y, text_size, TEXT_ALIGN_CENTER)
 }
 
 

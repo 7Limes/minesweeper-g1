@@ -78,6 +78,7 @@ fn show_endgame_menu(win) {
         WIDTH/2-ENDGAME_MENU_WIDTH/2, HEIGHT/2-ENDGAME_MENU_HEIGHT/2,
         ENDGAME_MENU_WIDTH, ENDGAME_MENU_HEIGHT
     )
+    
     // Draw win/lose text
     draw_shadow_text(
         winlose_text,
