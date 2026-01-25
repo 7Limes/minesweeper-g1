@@ -149,6 +149,8 @@ fn update_preset_values() {
 
 
 fn menu_tick() {
+    next_rand()  // Seed RNG
+
     if CONTROL1 {
         start_game()
     }
@@ -179,6 +181,7 @@ fn menu_tick() {
     }
     
     if LEFT + RIGHT {
+        next_rand()
         if !menu_change_value_timer {
             let p_current_data = get(MENU_DATA_POINTERS+menu_option_index)
             let current_data = get(p_current_data)
