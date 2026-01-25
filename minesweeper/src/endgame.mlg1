@@ -89,7 +89,7 @@ fn show_endgame_menu(win) {
     draw_timer_text()
 
     // Draw return prompt text
-    let return_text = "Press ENTER to return to the menu."
+    let return_text = "Press ENTER to return to the menu"
     draw_shadow_text(
         return_text,
         WIDTH/2, HEIGHT/2 + RETURN_TEXT_Y_OFFSET,

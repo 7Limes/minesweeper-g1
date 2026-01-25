@@ -6,14 +6,26 @@ include "minesweeper/src/globals"
 include "minesweeper/src/menu"
 include "minesweeper/src/game"
 include "minesweeper/src/endgame"
+include "minesweeper/src/pause"
 
 
 fn start() {
+    srand(9447)
     display_menu()
 }
 
 
+fn update_prev_inputs() {
+    prev_A = A
+    prev_B = B
+    prev_UP = UP
+    prev_DOWN = DOWN
+    prev_CONTROL1 = CONTROL1
+}
+
+
 fn tick() {
+    next_rand()
     sound_tick()
     
     if game_state == E_GAMESTATE_MENU {
@@ -22,7 +34,12 @@ fn tick() {
     else if game_state == E_GAMESTATE_BOARD {
         game_tick()
     }
-    else {
+    else if game_state == E_GAMESTATE_ENDGAME {
         endgame_tick()
     }
+    else {  // Paused
+        pause_tick()
+    }
+
+    update_prev_inputs()
 }

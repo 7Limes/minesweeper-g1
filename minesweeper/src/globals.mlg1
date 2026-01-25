@@ -6,6 +6,7 @@ define false 0
 define E_GAMESTATE_MENU 1
 define E_GAMESTATE_BOARD 2
 define E_GAMESTATE_ENDGAME 3
+define E_GAMESTATE_PAUSE 4
 
 // Packed colors
 define PCOLOR_WHITE 255 + 255*256 + 255*65536
@@ -24,6 +25,12 @@ $FONT img "minesweeper/assets/code8x8-mod.png"
 
 // Globals
 global game_state = E_GAMESTATE_MENU
+
+global prev_A = 0
+global prev_B = 0
+global prev_UP = 0
+global prev_DOWN = 0
+global prev_CONTROL1 = 0
 
 // Menu options
 global current_preset = 0  // 0 = Beginner, 1 = Intermediate, 2 = Expert

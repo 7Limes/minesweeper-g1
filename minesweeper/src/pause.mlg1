@@ -1,0 +1,52 @@
+include "color"
+include "minesweeper/src/graphics"
+include "minesweeper/src/menu"
+
+
+define PAUSE_MENU_WIDTH 550
+define PAUSE_MENU_HEIGHT 250
+
+
+fn pause_tick() {
+    if CONTROL1 * !prev_CONTROL1 {
+        game_state = E_GAMESTATE_BOARD
+        draw_board()
+    }
+    if B * !prev_B {
+        game_state = E_GAMESTATE_MENU
+        display_menu()
+    }
+}
+
+
+fn display_pause_menu() {
+    let pause_text = "Pause"
+
+    // Draw background
+    unpack_color(PCOLOR_BG3)
+    rect(
+        WIDTH/2-PAUSE_MENU_WIDTH/2, HEIGHT/2-PAUSE_MENU_HEIGHT/2,
+        PAUSE_MENU_WIDTH, PAUSE_MENU_HEIGHT
+    )
+    
+    // Draw title text
+    draw_shadow_text(
+        pause_text,
+        WIDTH/2, HEIGHT/2 + WINLOSE_TEXT_Y_OFFSET,
+        5, TEXT_ALIGN_CENTER, 5, PCOLOR_YELLOW
+    )
+
+    // Draw control texts
+    let resume_text = "Press ENTER to resume"
+    let menu_text = "Press X to return to the menu"
+    draw_shadow_text(
+        resume_text,
+        WIDTH/2, HEIGHT/2,
+        2, TEXT_ALIGN_CENTER, 2, PCOLOR_WHITE
+    )
+    draw_shadow_text(
+        menu_text,
+        WIDTH/2, HEIGHT/2+40,
+        2, TEXT_ALIGN_CENTER, 2, PCOLOR_WHITE
+    )
+}

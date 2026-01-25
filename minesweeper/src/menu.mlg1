@@ -154,8 +154,6 @@ fn update_preset_values() {
 
 
 fn menu_tick() {
-    next_rand()  // Seed RNG
-
     if CONTROL1 * !prev_CONTROL1 {
         start_game()
     }
@@ -163,10 +161,12 @@ fn menu_tick() {
     // Select option
     let prev_option_index = menu_option_index
     if UP * !prev_UP {
+        next_rand()
         menu_option_index = (menu_option_index-1) % MENU_OPTION_COUNT
         play_tone(0, SQUARE_WAVE, 1046, 3000, 2)
     }
     if DOWN * !prev_DOWN {
+        next_rand()
         menu_option_index = (menu_option_index+1) % MENU_OPTION_COUNT
         play_tone(0, SQUARE_WAVE, 523, 3000, 2)
     }
@@ -186,7 +186,7 @@ fn menu_tick() {
     }
     
     if LEFT + RIGHT {
-        next_rand()
+        next_rand()  // Seed rng
         if !menu_change_value_timer {
             let p_current_data = get(MENU_DATA_POINTERS+menu_option_index)
             let current_data = get(p_current_data)
@@ -208,8 +208,4 @@ fn menu_tick() {
 
         menu_change_value_timer = (menu_change_value_timer+1) % MENU_CHANGE_VALUE_DELAY
     }
-
-    let prev_CONTROL1 = CONTROL1
-    let prev_UP = UP
-    let prev_DOWN = DOWN
 }

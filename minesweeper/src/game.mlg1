@@ -5,6 +5,7 @@ include "string"
 include "minesweeper/src/gamelogic"
 include "minesweeper/src/graphics"
 include "minesweeper/src/sound"
+include "minesweeper/src/pause"
 
 
 // Win state enum
@@ -258,8 +259,11 @@ fn game_tick() {
         draw_board()
     }
 
-    game_timer = game_timer+1
+    // Pause
+    if CONTROL1 * !prev_CONTROL1 {
+        game_state = E_GAMESTATE_PAUSE
+        display_pause_menu()
+    }
 
-    let prev_A = A
-    let prev_B = B
+    game_timer = game_timer+1
 }
