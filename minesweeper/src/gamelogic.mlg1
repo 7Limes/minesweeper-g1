@@ -136,11 +136,14 @@ fn floodfill_clear(seed_x, seed_y) {
     let current_buffer_end = current_buffer+1
     let next_buffer_end = next_buffer
 
+    let total_cleared_cells = 0
+
     set_cell_state(seed_x, seed_y, E_CELL_CLEAR_EMPTY)
     set(current_buffer, seed_x + seed_y*board_width)
 
     let current_buffer_ptr = current_buffer
     while (current_buffer_ptr < current_buffer_end) {
+        total_cleared_cells = total_cleared_cells+1
         let current_cell = get(current_buffer_ptr)
         let x = current_cell % board_width
         let y = current_cell / board_width
@@ -163,8 +166,10 @@ fn floodfill_clear(seed_x, seed_y) {
             next_buffer_end = next_buffer
         }
     }
-
+    
+    return total_cleared_cells
 }
+
 
 fn check_win() {
     let board_end = board + board_width * board_height

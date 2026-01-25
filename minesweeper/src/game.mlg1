@@ -9,15 +9,21 @@ include "minesweeper/src/graphics"
 define CURSOR_REPEAT_DELAY 10
 define CURSOR_REPEAT_INTERVAL 4
 
+define MINIMUM_STARTING_TILES 10
+define FIRST_TURN_MAX_ITERATIONS 10
+
 
 // Cursor data
 global cursor_x, cursor_y
 global cursor_repeat_timer = 0
 
+global first_turn
+
 
 fn start_game() {
     game_state = E_GAMESTATE_BOARD
     game_timer = 0
+    first_turn = true
 
     cursor_x = board_width / 2
     cursor_y = board_height / 2
@@ -81,15 +87,41 @@ fn move_cursor_tick() {
 }
 
 
+fn do_first_turn(x, y) {
+    let iteration_count = 0
+    while first_turn {
+        iteration_count = iteration_count+1
+
+        populate_board()
+        let cell_state = get_cell_state(x, y)
+        if cell_state == E_CELL_UNCLEAR_MINE {
+            continue
+        }
+        
+        if cell_state == E_CELL_UNCLEAR_EMPTY {
+            let cleared_cells = floodfill_clear(x, y)
+            if (cleared_cells < MINIMUM_STARTING_TILES) * (iteration_count < FIRST_TURN_MAX_ITERATIONS) {
+                continue
+            }
+            first_turn = false
+        }
+    }
+    draw_board()
+}
+
+
 fn clear_cell(x, y) {
+    do_first_turn(x, y)
+
     let cell_state = get_cell_state(x, y)
     if (cell_state >= E_CELL_FLAG_EMPTY) * (cell_state <= E_CELL_CLEAR_EMPTY)  {
         // Skip if this cell is flagged or already cleared
         return 0
     }
 
+
     if cell_state == E_CELL_UNCLEAR_EMPTY {
-        floodfill_clear(x, y)
+        let cleared_cells = floodfill_clear(x, y)
         draw_board()
         if check_win() {
             game_state = E_GAMESTATE_ENDGAME
