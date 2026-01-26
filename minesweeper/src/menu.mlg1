@@ -98,7 +98,7 @@ fn display_menu() {
     
     let mine_count = board_width * board_height * mine_density / 100
     formatn(string_buffer, 31, mine_count_pattern, mine_count)
-    draw_shadow_text(string_buffer, 650, 290, 2, TEXT_ALIGN_LEFT, 2, PCOLOR_GRAY)
+    draw_shadow_text(string_buffer, 650, 245, 2, TEXT_ALIGN_LEFT, 2, PCOLOR_GRAY)
 
     // Draw menu options
     for (let i = 0; i < MENU_OPTION_COUNT; i=i+1) {
