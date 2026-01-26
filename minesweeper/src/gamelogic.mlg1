@@ -10,7 +10,7 @@ define FLOODFILL_BUFFER_SIZE 112
 
 
 // Board data
-global tile_size, board_x_offset, board_y_offset
+global tile_size, board_x_offset, board_y_offset, tile_bevel_size
 
 // Board buffers
 global board[MAX_BOARD_SIZE*MAX_BOARD_SIZE]
@@ -44,6 +44,8 @@ fn calculate_board_data() {
         board_x_offset = WIDTH/2 - tile_size*board_width/2
         board_y_offset = (HEIGHT - tile_size*board_height) / 2
     }
+
+    tile_bevel_size = clamp(tile_size/10, 1, 8)
 }
 
 

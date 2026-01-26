@@ -8,6 +8,9 @@ define E_GAMESTATE_BOARD 2
 define E_GAMESTATE_ENDGAME 3
 define E_GAMESTATE_PAUSE 4
 
+define E_THEME_LIGHT 0
+define E_THEME_DARK 1
+
 // Packed colors
 define PCOLOR_WHITE 255 + 255*256 + 255*65536
 define PCOLOR_GRAY 160 + 160*256 + 160*65536
@@ -38,6 +41,7 @@ global board_width = 9
 global board_height = 9
 global mine_density = 10
 global mute_audio = false
+global theme = E_THEME_LIGHT
 
 global PRESETS[] = [
     9, 9, 10,

@@ -10,6 +10,7 @@ include "minesweeper/src/pause"
 
 fn start() {
     srand(9447)
+    load_theme()
     display_menu()
 }
 

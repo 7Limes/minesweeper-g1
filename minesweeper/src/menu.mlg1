@@ -2,17 +2,22 @@ include "string"
 include "math"
 include "minesweeper/src/util"
 include "minesweeper/src/sound"
+include "minesweeper/src/theme"
 include "minesweeper/src/game"
 
 
-define MENU_OPTION_COUNT 5
+define MENU_OPTION_COUNT 6
 define OPTION_PRESET 0
+define OPTION_THEME 5
 
 define MENU_X_OFFSET 50
 define MENU_Y_OFFSET 100
 define MENU_OPTION_SPACING 45
 define MENU_OPTION_SCALE 3
 define MENU_SELECTION_PADDING 5
+
+define THEME_DEMO_Y_OFFSET 500
+define THEME_DEMO_TILE_SIZE 60
 
 define MENU_CHANGE_VALUE_DELAY 8
 
@@ -28,13 +33,15 @@ global BOARD_WIDTH_PATTERN = "Board width: %s tiles"
 global BOARD_HEIGHT_PATTERN = "Board height: %s tiles"
 global MINE_DENSITY_PATTERN = "Mine density: %s%"
 global MUTE_PATTERN = "Mute audio: %s"
+global THEME_PATTERN = "Theme: %s"
 
 global MENU_PATTERNS[] = [
     PRESET_PATTERN,
     BOARD_WIDTH_PATTERN,
     BOARD_HEIGHT_PATTERN,
     MINE_DENSITY_PATTERN,
-    MUTE_PATTERN
+    MUTE_PATTERN,
+    THEME_PATTERN
 ]
 
 global PRESET_0_STRING = "Beginner"
@@ -52,7 +59,8 @@ global MENU_DATA_POINTERS[] = [
     &board_width,
     &board_height,
     &mine_density,
-    &mute_audio
+    &mute_audio,
+    &theme
 ]
 
 global MENU_DATA_BOUNDS[] = [
@@ -60,11 +68,12 @@ global MENU_DATA_BOUNDS[] = [
     MIN_BOARD_SIZE, MAX_BOARD_SIZE,
     MIN_BOARD_SIZE, MAX_BOARD_SIZE,
     MIN_DENSITY, MAX_DENSITY,
-    0, 1
+    false, true,
+    E_THEME_LIGHT, E_THEME_DARK
 ]
 
 global MENU_DATA_INCREMENT[] = [
-    1, 1, 1, 5, 1
+    1, 1, 1, 5, 1, 1
 ]
 
 global menu_option_index = 0
@@ -85,11 +94,11 @@ fn display_menu() {
     let prompt_text = "Press ENTER to begin"
     let mine_count_pattern = "(%i mines)"
     draw_shadow_text(title_text, MENU_X_OFFSET-15, 30, 4, TEXT_ALIGN_LEFT, 4, PCOLOR_WHITE)
-    draw_shadow_text(prompt_text, MENU_X_OFFSET, 350, 3, TEXT_ALIGN_LEFT, 3, PCOLOR_YELLOW)
+    draw_shadow_text(prompt_text, MENU_X_OFFSET, 400, 3, TEXT_ALIGN_LEFT, 3, PCOLOR_YELLOW)
     
     let mine_count = board_width * board_height * mine_density / 100
     formatn(string_buffer, 31, mine_count_pattern, mine_count)
-    draw_shadow_text(string_buffer, 650, 245, 2, TEXT_ALIGN_LEFT, 2, PCOLOR_GRAY)
+    draw_shadow_text(string_buffer, 650, 290, 2, TEXT_ALIGN_LEFT, 2, PCOLOR_GRAY)
 
     // Draw menu options
     for (let i = 0; i < MENU_OPTION_COUNT; i=i+1) {
@@ -140,6 +149,8 @@ fn display_menu() {
             PCOLOR_WHITE
         )
     }
+
+    draw_theme_demo()
 }
 
 
@@ -149,6 +160,42 @@ fn update_preset_values() {
         board_width = get(p_presets)
         board_height = get(p_presets+1)
         mine_density = get(p_presets+2)
+    }
+}
+
+
+fn draw_theme_demo() {
+    let saved_tile_size = tile_size
+    tile_size = THEME_DEMO_TILE_SIZE
+    tile_bevel_size = THEME_DEMO_TILE_SIZE / 10
+
+    let tile_x, tile_y
+    for (let r = 0; r < 2; r=r+1) {
+        for (let c = 0; c < 8; c=c+1) {
+            tile_x = MENU_X_OFFSET + THEME_DEMO_TILE_SIZE*c
+            tile_y = THEME_DEMO_Y_OFFSET + r * THEME_DEMO_TILE_SIZE
+            draw_cleared_tile(tile_x, tile_y)
+        }
+    }
+    draw_uncleared_tile(MENU_X_OFFSET, THEME_DEMO_Y_OFFSET)
+    draw_flag(MENU_X_OFFSET+THEME_DEMO_TILE_SIZE*2, THEME_DEMO_Y_OFFSET)
+    draw_mine(MENU_X_OFFSET+THEME_DEMO_TILE_SIZE*3, THEME_DEMO_Y_OFFSET)
+
+    for (let i = 0; i < 8; i=i+1) {
+        tile_x = MENU_X_OFFSET + THEME_DEMO_TILE_SIZE*i
+        draw_number_tile(i+1, tile_x, THEME_DEMO_Y_OFFSET+THEME_DEMO_TILE_SIZE)
+    }
+
+    color(255, 255, 255)
+    outline_rect(MENU_X_OFFSET, THEME_DEMO_Y_OFFSET, THEME_DEMO_TILE_SIZE*8, THEME_DEMO_TILE_SIZE*2)
+
+    tile_size = saved_tile_size
+}
+
+
+fn update_theme() {
+    if menu_option_index == OPTION_THEME {
+        load_theme()
     }
 }
 
@@ -194,6 +241,7 @@ fn menu_tick() {
                 current_data = clamp(current_data-current_option_increment, current_option_min, current_option_max)
                 set(p_current_data, current_data)
                 update_preset_values()
+                update_theme()
                 display_menu()
                 play_tone(1, TRIANGLE_WAVE, 932, 3000, 2)
             }
@@ -201,6 +249,7 @@ fn menu_tick() {
                 current_data = clamp(current_data+current_option_increment, current_option_min, current_option_max)
                 set(p_current_data, current_data)
                 update_preset_values()
+                update_theme()
                 display_menu()
                 play_tone(1, TRIANGLE_WAVE, 1864, 3000, 2)
             }

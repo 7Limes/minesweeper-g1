@@ -1,0 +1,64 @@
+define THEME_SIZE 5
+
+define LIGHT_TILE_BASE 180 + 180*256 + 180*65536
+define LIGHT_TILE_POS 255 + 255*256 + 255*65536
+define LIGHT_TILE_NEG 123 + 123*256 + 123*65536
+define LIGHT_CURSOR 145 + 185*256 + 240*65536
+
+define DARK_TILE_BASE 70 + 70*256 + 90*65536
+define DARK_TILE_POS 95 + 100*256 + 127*65536
+define DARK_TILE_NEG 50 + 50*256 + 65*65536
+define DARK_CURSOR 230 + 160*256 + 60*65536
+
+
+global LIGHT_NUMBERS[] = [
+    0 + 0*256 + 255*65536,
+    0 + 127*256 + 0*65536,
+    255 + 0*256 + 0*65536,
+    0 + 0*256 + 127*65536,
+    127 + 0*256 + 0*65536,
+    0 + 0*256 + 0*65536,
+    60 + 60*256 + 60*65536,
+    85 + 0*256 + 0*65536
+]
+
+global DARK_NUMBERS[] = [
+    60 + 60*256 + 255*65536,
+    137 + 195*256 + 95*65536,
+    255 + 95*256 + 60*65536,
+    100 + 50*256 + 195*65536,
+    170 + 30*256 + 30*65536,
+    115 + 170*256 + 180*65536,
+    215 + 145*256 + 40*65536,
+    30 + 30*256 + 50*65536
+]
+
+global THEME_COLORS[] = [
+    LIGHT_CURSOR,
+    LIGHT_TILE_BASE,
+    LIGHT_TILE_POS,
+    LIGHT_TILE_NEG,
+    LIGHT_NUMBERS,
+
+    DARK_CURSOR,
+    DARK_TILE_BASE,
+    DARK_TILE_POS,
+    DARK_TILE_NEG,
+    DARK_NUMBERS
+]
+
+
+global col_cursor
+global col_tile_base, col_tile_pos, col_tile_neg
+global col_numbers
+
+
+fn load_theme() {
+    let index = THEME_COLORS + theme * THEME_SIZE
+
+    col_cursor = get(index)
+    col_tile_base = get(index+1)
+    col_tile_pos = get(index+2)
+    col_tile_neg = get(index+3)
+    col_numbers = get(index+4)
+}
