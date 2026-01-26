@@ -1,12 +1,14 @@
 include "color"
 
-fn outline_rect(x, y, w, h) {
-    let right = x + w
-    let bottom = y + h
-    line(x, y, right, y)
-    line(x, y, x, bottom)
-    line(x, bottom, right, bottom)
-    line(right, y, right, bottom)
+fn outline_rect(x, y, w, h, stroke) {
+    let full_width = w + stroke * 2
+    let full_height = h + stroke * 2
+    let left = x - stroke
+    let top = y - stroke
+    rect(left, top, full_width, stroke)
+    rect(left, top, stroke, full_height)
+    rect(x+w, top, stroke, full_height)
+    rect(left, y+h, full_width, stroke)
 }
 
 

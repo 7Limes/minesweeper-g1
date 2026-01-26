@@ -132,5 +132,5 @@ fn draw_board() {
     }
     
     color(0, 0, 0)
-    outline_rect(board_x_offset-1, board_y_offset-1, board_width*tile_size+1, board_height*tile_size+1)
+    outline_rect(board_x_offset, board_y_offset, board_width*tile_size, board_height*tile_size, 3)
 }

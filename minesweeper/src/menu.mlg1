@@ -187,7 +187,7 @@ fn draw_theme_demo() {
     }
 
     color(255, 255, 255)
-    outline_rect(MENU_X_OFFSET, THEME_DEMO_Y_OFFSET, THEME_DEMO_TILE_SIZE*8, THEME_DEMO_TILE_SIZE*2)
+    outline_rect(MENU_X_OFFSET, THEME_DEMO_Y_OFFSET, THEME_DEMO_TILE_SIZE*8, THEME_DEMO_TILE_SIZE*2, 2)
 
     tile_size = saved_tile_size
 }
