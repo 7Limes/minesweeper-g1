@@ -19,7 +19,7 @@ define CURSOR_REPEAT_INTERVAL 4
 
 // First turn configuration
 define MINIMUM_STARTING_TILES 10
-define FIRST_TURN_MAX_ITERATIONS 10
+define FIRST_TURN_MAX_ITERATIONS 20
 
 define GOOD_CLEAR_THRESHOLD 5
 
@@ -227,6 +227,7 @@ fn start_game() {
     game_state = E_GAMESTATE_BOARD
     game_timer = 0
     first_turn = true
+    quick_clear_queue_size = 0
 
     cursor_x = board_width / 2
     cursor_y = board_height / 2
