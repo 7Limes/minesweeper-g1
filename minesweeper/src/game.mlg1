@@ -35,21 +35,8 @@ global quick_clear_queue_size = 0
 
 
 fn move_cursor_tick() {
-    let move_x = 0
-    let move_y = 0
-
-    if UP {
-        move_y = move_y-1
-    }
-    if DOWN {
-        move_y = move_y+1
-    }
-    if LEFT {
-        move_x = move_x-1
-    }
-    if RIGHT {
-        move_x = move_x+1
-    }
+    let move_y = DOWN - UP
+    let move_x = RIGHT - LEFT
 
     let input_sum = UP + DOWN + LEFT + RIGHT
     if input_sum {
