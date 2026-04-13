@@ -25,16 +25,17 @@ fn draw_checkerboard_background(square_size, pcolor1, pcolor2) {
     let squares_height = HEIGHT / square_size + 1
     let area = squares_width * squares_height
 
-    for (let i = 0; i < area; i=i+1) {
-        let x = i % squares_width * square_size
-        let y = i / squares_width * square_size
-        
-        if i % 2 {
-            unpack_color(pcolor1)
+    unpack_color(pcolor1)
+    rect(0, 0, WIDTH, HEIGHT)
+    for (let y = 0; y < squares_height; y=y+1) {
+        let ry = y * square_size
+        for (let x = 0; x < squares_width; x=x+1) {
+            let rx = x * square_size
+            
+            if (x+y) % 2 {
+                unpack_color(pcolor2)
+                rect(rx, ry, square_size, square_size)
+            }
         }
-        else {
-            unpack_color(pcolor2)
-        }
-        rect(x, y, square_size, square_size)
     }
 }
